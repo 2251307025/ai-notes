@@ -1,0 +1,15 @@
+# 编译输出
+target/
+out/
+*.class
+
+# IDE 配置（但保留 .gitignore 自身）
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+
+# 日志、缓存、系统文件
+*.log
+.DS_Store

@@ -1,0 +1,36 @@
+server:
+  port: 8080
+spring:
+  ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+    deepseek:
+      api-key: sk-1bdffac9d42e49b3afff939aec6d1185
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/big_event
+    username: root
+    password: 1234
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 1234
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true #开启驼峰命名
+aliyun:
+  oss:
+    endpoint: https://oss-cn-hangzhou.aliyuncs.com
+
+    bucketName: chjdbucket
