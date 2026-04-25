@@ -26,6 +26,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public void add(String categoryName, String categoryAlias) {
+        Category c=new Category();
+        c.setCategoryName(categoryName);
+        c.setCategoryAlias(categoryAlias);
+        add(c);
+    }
+
+    @Override
     public List<Category> list() {
         Map<String,Object> map = ThreadLocalUtil.get();
         Integer userId = (Integer) map.get("id");

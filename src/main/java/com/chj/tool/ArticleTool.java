@@ -2,18 +2,18 @@ package com.chj.tool;
 
 import com.chj.pojo.Article;
 import com.chj.service.ArticleService;
+import com.chj.service.CategoryService;
+import com.chj.utils.ThreadLocalUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Slf4j
 @Component
-public class ChatTool {
+public class ArticleTool {
     @Resource
     private ArticleService articleService;
     @Tool(description = "获取用户笔记（文章）数量")
@@ -31,4 +31,15 @@ public class ChatTool {
         log.info("调用根据id{}查看笔记详情tool",id);
         return articleService.findById( id);
     }
+    @Tool(description = "根据笔记{id}删除笔记")
+    public void deleteArticle(Integer id){
+        log.info("调用根据id{}删除笔记tool",id);
+        articleService.deleteById(id);
+    }
+    @Tool(description = "添加笔记")
+    public void addArticle(Article article){
+        log.info("调用添加笔记tool");
+        articleService.add(article);
+    }
+
 }

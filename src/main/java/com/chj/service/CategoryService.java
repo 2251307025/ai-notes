@@ -8,6 +8,7 @@ import java.util.List;
 @Service
 public interface CategoryService {
     void add(Category category);
+    void add(String categoryName,String categoryAlias);
 
     List<Category> list();
 
@@ -16,4 +17,6 @@ public interface CategoryService {
     void update(Category category);
 
     void delete(Integer id);
+
+
 }

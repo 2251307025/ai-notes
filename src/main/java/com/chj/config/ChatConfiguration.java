@@ -7,6 +7,7 @@ import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
 import org.springframework.ai.chat.memory.repository.jdbc.MysqlChatMemoryRepositoryDialect;
+import org.springframework.ai.chat.memory.repository.jdbc.PostgresChatMemoryRepositoryDialect;
 import org.springframework.ai.deepseek.DeepSeekChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,6 @@ public class ChatConfiguration {
     public ChatMemoryRepository chatMemoryRepository(JdbcTemplate jdbcTemplate) {
         return JdbcChatMemoryRepository.builder()
                 .jdbcTemplate(jdbcTemplate)
-                .dialect(new MysqlChatMemoryRepositoryDialect())
                 .build();
     }
 

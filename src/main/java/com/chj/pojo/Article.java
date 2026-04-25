@@ -21,7 +21,6 @@ public class Article {
     private String title;//文章标题
     @NotEmpty
     private String content;//文章内容
-    @NotEmpty
     @URL
     private String coverImg;//封面图像
     @State
