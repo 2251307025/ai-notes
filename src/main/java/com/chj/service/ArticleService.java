@@ -1,6 +1,7 @@
 package com.chj.service;
 
 import com.chj.pojo.Article;
+import com.chj.pojo.CategoryStats;
 import com.chj.pojo.PageBean;
 import org.springframework.stereotype.Service;
 
@@ -22,4 +23,6 @@ public interface ArticleService {
     int getTotal();
 
     List<Article> listArticle(String data);
+
+    List<CategoryStats> getArticleStats();
 }

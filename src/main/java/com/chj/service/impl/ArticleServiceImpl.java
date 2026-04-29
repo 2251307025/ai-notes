@@ -2,6 +2,7 @@ package com.chj.service.impl;
 
 import com.chj.mapper.ArticleMapper;
 import com.chj.pojo.Article;
+import com.chj.pojo.CategoryStats;
 import com.chj.pojo.PageBean;
 import com.chj.service.ArticleService;
 import com.chj.utils.AliOssUtil;
@@ -65,18 +66,21 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public int getTotal() {
         Map<String,Object> map = ThreadLocalUtil.get();
-        if (map==null){
-            return articleMapper.getTotal(2L);
-        }
         return articleMapper.getTotal((Long)map.get("id"));
+    }
+
+    @Override
+    public List<CategoryStats> getArticleStats() {
+        Map<String,Object> map = ThreadLocalUtil.get();
+        if (map==null){
+            return articleMapper.getArticleStats(2);
+        }
+        return articleMapper.getArticleStats((Integer)map.get("id"));
     }
 
     @Override
     public List<Article> listArticle(String data) {
         Map<String,Object> map=ThreadLocalUtil.get();
-        if (map==null){
-            return articleMapper.listArticle(data,2L);
-        }
         return articleMapper.listArticle(data,(Long)map.get("id"));
 
     }

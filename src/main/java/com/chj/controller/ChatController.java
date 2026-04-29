@@ -2,6 +2,7 @@ package com.chj.controller;
 
 import com.chj.tool.ArticleTool;
 import com.chj.tool.CategoryTool;
+import com.chj.tool.UserTool;
 import com.chj.utils.ThreadLocalUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,8 @@ public class ChatController {
     private ArticleTool articleTool;
     @Resource
     private CategoryTool categoryTool;
+    @Resource
+    private UserTool userTool;
     record ChatInput(String userInput,String userId){}
 
     @PostMapping(produces = "text/stream;charset=utf8")
@@ -40,7 +43,7 @@ public class ChatController {
         List<Message> messages = chatMemory.get(userId);
         log.info("历史记录{}",messages);
         log.info("用户{}询问{}",userId,userInput);
-        ToolCallback[] toolCallbacks = ToolCallbacks.from(articleTool,categoryTool);
+        ToolCallback[] toolCallbacks = ToolCallbacks.from(articleTool,categoryTool,userTool);
         return deepSeekChatClient.prompt()
                 .advisors(MessageChatMemoryAdvisor.builder(chatMemory)
                         .conversationId(userId).build()).user(userInput)
