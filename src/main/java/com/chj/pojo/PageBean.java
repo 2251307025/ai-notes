@@ -1,5 +1,6 @@
 package com.chj.pojo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,4 +14,6 @@ import java.util.List;
 public class PageBean <T>{
     private Long total;//总条数
     private List<T> items;//当前页数据集合
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Boolean hasMore;//是否还有更多数据（游标分页使用）
 }

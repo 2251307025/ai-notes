@@ -14,6 +14,23 @@
         </if>
         and create_user=#{userId}
         </where>
+        order by id asc
     </select>
-    
+
+    <select id="listByIdCursor" resultType="com.chj.pojo.Article">
+        select * from article
+        <where>
+            id > #{lastId}
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+            <if test="state != null">
+                and state = #{state}
+            </if>
+            and create_user = #{userId}
+        </where>
+        order by id asc
+        limit #{limit}
+    </select>
+
 </mapper>

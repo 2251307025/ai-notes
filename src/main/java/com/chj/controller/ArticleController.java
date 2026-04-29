@@ -26,14 +26,21 @@ public class ArticleController {
         articleService.add(article);
         return Result.success();
     }
-    //带有分页的查询
+    //带有分页的查询（支持偏移分页和游标分页/无限滚动）
     @GetMapping
-    public Result<PageBean<Article>> list(@RequestParam(defaultValue = "1") Integer pageNum,
+    public Result<PageBean<Article>> list(@RequestParam(required = false) Integer pageNum,
                                           @RequestParam(defaultValue = "5") Integer pageSize,
+                                          @RequestParam(required = false) Integer lastId,
                                           @RequestParam(required = false) String categoryId,
                                           @RequestParam(required = false) String state){
-        log.info("分页查询");
-        PageBean<Article> pb=articleService.list(pageNum,pageSize,categoryId,state);
+        if (lastId != null) {
+            log.info("游标分页查询, lastId={}", lastId);
+            PageBean<Article> pb = articleService.listByCursor(lastId, pageSize, categoryId, state);
+            return Result.success(pb);
+        }
+        log.info("偏移分页查询");
+        int page = (pageNum != null) ? pageNum : 1;
+        PageBean<Article> pb = articleService.list(page, pageSize, categoryId, state);
         return Result.success(pb);
     }
     @PutMapping

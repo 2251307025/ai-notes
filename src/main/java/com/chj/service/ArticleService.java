@@ -14,6 +14,8 @@ public interface ArticleService {
 
     PageBean<Article> list(Integer pageNum, Integer pageSize, String categoryId, String state);
 
+    PageBean<Article> listByCursor(Integer lastId, Integer pageSize, String categoryId, String state);
+
     void update(Article article);
 
     Article findById(Integer id);

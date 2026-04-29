@@ -45,6 +45,19 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public PageBean<Article> listByCursor(Integer lastId, Integer pageSize, String categoryId, String state) {
+        Map<String,Object> map = ThreadLocalUtil.get();
+        Integer userId = (Integer) map.get("id");
+        List<Article> articles = articleMapper.listByIdCursor(lastId, pageSize + 1, userId, categoryId, state);
+        boolean hasMore = articles.size() > pageSize;
+        List<Article> items = hasMore ? articles.subList(0, pageSize) : articles;
+        PageBean<Article> pb = new PageBean<>();
+        pb.setItems(items);
+        pb.setHasMore(hasMore);
+        return pb;
+    }
+
+    @Override
     public void update(Article article) {
         article.setUpdateTime(LocalDateTime.now());
         Map<String,Object> map = ThreadLocalUtil.get();
