@@ -31,7 +31,7 @@ public class ArticleController {
     public Result<PageBean<Article>> list(@RequestParam(required = false) Integer pageNum,
                                           @RequestParam(defaultValue = "5") Integer pageSize,
                                           @RequestParam(required = false) Integer lastId,
-                                          @RequestParam(required = false) String categoryId,
+                                          @RequestParam(required = false) Integer categoryId,
                                           @RequestParam(required = false) String state){
         if (lastId != null) {
             log.info("游标分页查询, lastId={}", lastId);

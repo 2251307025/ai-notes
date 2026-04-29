@@ -12,9 +12,9 @@ import java.util.List;
 public interface ArticleService {
     void add(Article article);
 
-    PageBean<Article> list(Integer pageNum, Integer pageSize, String categoryId, String state);
+    PageBean<Article> list(Integer pageNum, Integer pageSize, Integer categoryId, String state);
 
-    PageBean<Article> listByCursor(Integer lastId, Integer pageSize, String categoryId, String state);
+    PageBean<Article> listByCursor(Integer lastId, Integer pageSize, Integer categoryId, String state);
 
     void update(Article article);
 

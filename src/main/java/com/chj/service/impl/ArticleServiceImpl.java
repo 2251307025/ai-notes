@@ -32,7 +32,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public PageBean<Article> list(Integer pageNum, Integer pageSize, String categoryId, String state) {
+    public PageBean<Article> list(Integer pageNum, Integer pageSize, Integer categoryId, String state) {
         PageBean<Article> pb=new PageBean<>();
         PageHelper.startPage(pageNum,pageSize);
         Map<String,Object> map = ThreadLocalUtil.get();
@@ -45,7 +45,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public PageBean<Article> listByCursor(Integer lastId, Integer pageSize, String categoryId, String state) {
+    public PageBean<Article> listByCursor(Integer lastId, Integer pageSize, Integer categoryId, String state) {
         Map<String,Object> map = ThreadLocalUtil.get();
         Integer userId = (Integer) map.get("id");
         List<Article> articles = articleMapper.listByIdCursor(lastId, pageSize + 1, userId, categoryId, state);
