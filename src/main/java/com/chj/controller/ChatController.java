@@ -3,6 +3,7 @@ package com.chj.controller;
 import com.chj.pojo.Result;
 import com.chj.tool.ArticleTool;
 import com.chj.tool.CategoryTool;
+import com.chj.tool.TtlToolCallbackWrapper;
 import com.chj.tool.UserTool;
 import com.chj.utils.ThreadLocalUtil;
 import jakarta.annotation.Resource;
@@ -55,7 +56,10 @@ public class ChatController {
         List<Message> messages = chatMemory.get(userId);
         log.info("历史记录{}", messages);
         log.info("用户{}询问{}", userId, userInput);
-        ToolCallback[] toolCallbacks = ToolCallbacks.from(articleTool, categoryTool, userTool);
+        ToolCallback[] toolCallbacks = Arrays.stream(
+                        ToolCallbacks.from(articleTool, categoryTool, userTool))
+                .map(TtlToolCallbackWrapper::new)
+                .toArray(ToolCallback[]::new);
         return deepSeekChatClient.prompt()
                 .advisors(MessageChatMemoryAdvisor.builder(chatMemory)
                         .conversationId(userId).build())

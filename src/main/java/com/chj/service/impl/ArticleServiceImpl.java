@@ -78,7 +78,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public int getTotal() {
         Map<String,Object> map = ThreadLocalUtil.get();
-        return articleMapper.getTotal((Long)map.get("id"));
+        return articleMapper.getTotal((Integer) map.get("id"));
     }
 
     @Override
@@ -91,7 +91,7 @@ public class ArticleServiceImpl implements ArticleService {
     public List<Article> listArticle(List<String> data) {
         Map<String,Object> map=ThreadLocalUtil.get();
         Set<Article> set=new HashSet<>();
-        Long userId=(Long)map.get("id");
+        Integer userId= (Integer) map.get("id");
         for (String item : data) {
             List<Article> articles = articleMapper.listArticle(item, userId);
             set.addAll(articles);

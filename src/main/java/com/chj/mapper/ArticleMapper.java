@@ -23,18 +23,20 @@ public interface ArticleMapper {
     @Update("update article set title=#{title},content=#{content},cover_img=#{coverImg},state=#{state},category_id=#{categoryId},update_time=#{updateTime} where id=#{id}")
     void update(Article article);
 
-@Select("select * from article where id=#{id}")
+    @Select("select * from article where id=#{id}")
     Article findById(Integer id);
 
-@Delete("delete from article where id=#{id}")
-void deleteById(Integer id);
+    @Delete("delete from article where id=#{id}")
+    void deleteById(Integer id);
+
     @Select("select count(*) from article where create_user = #{id}")
-    int getTotal(Long id);
+    int getTotal(Integer id);
 
     @Select("SELECT c.id AS category_id, c.category_name, COUNT(a.id) AS article_count " +
             "FROM category c LEFT JOIN article a ON c.id = a.category_id " +
             "WHERE c.create_user = #{userId} GROUP BY c.id, c.category_name ORDER BY c.id")
     List<CategoryStats> getArticleStats(Integer userId);
+
     @Select("select * from article where create_user = #{id} and content like concat('%', #{data}, '%')")
-    List<Article> listArticle(String data, Long id);
+    List<Article> listArticle(String data, Integer id);
 }

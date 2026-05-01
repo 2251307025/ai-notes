@@ -24,7 +24,10 @@ public class ArticleTool {
         return articleService.getTotal();
     }
 
-    @Tool(description = "返回笔记内容中存在{data}的笔记列表,data是一个集合，请你根据用户的输入，使用一些相似的词进行搜索")
+    @Tool(description = "返回笔记内容中存在{data}的笔记列表" +
+            ",data是一个集合，请你根据用户的输入，使用一些相似的词进行搜索" +
+            ",这个方法返回的实体类中有分类的id，但是不要直接返回id给用户，" +
+            "请你查询分类列表，把id替换成对应的名称")
     public List<Article> listArticle(List<String> data) {
         log.info("调用查询笔记列表tool");
         List<Article> result = articleService.listArticle(data);
