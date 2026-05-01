@@ -41,3 +41,4 @@ aliyun:
 logging:
   level:
     com.chj.mapper: debug
+    root: WARN

@@ -24,7 +24,7 @@ public interface ArticleService {
 
     int getTotal();
 
-    List<Article> listArticle(String data);
+    List<Article> listArticle(List<String> data);
 
     List<CategoryStats> getArticleStats();
 }

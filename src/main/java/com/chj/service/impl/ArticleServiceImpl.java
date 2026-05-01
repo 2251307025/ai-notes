@@ -15,8 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -85,16 +84,18 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<CategoryStats> getArticleStats() {
         Map<String,Object> map = ThreadLocalUtil.get();
-        if (map==null){
-            return articleMapper.getArticleStats(2);
-        }
         return articleMapper.getArticleStats((Integer)map.get("id"));
     }
 
     @Override
-    public List<Article> listArticle(String data) {
+    public List<Article> listArticle(List<String> data) {
         Map<String,Object> map=ThreadLocalUtil.get();
-        return articleMapper.listArticle(data,(Long)map.get("id"));
-
+        Set<Article> set=new HashSet<>();
+        Long userId=(Long)map.get("id");
+        for (String item : data) {
+            List<Article> articles = articleMapper.listArticle(item, userId);
+            set.addAll(articles);
+        }
+        return new ArrayList<>(set);
     }
 }
