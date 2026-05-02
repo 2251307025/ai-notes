@@ -37,6 +37,8 @@ public interface ArticleMapper {
             "WHERE c.create_user = #{userId} GROUP BY c.id, c.category_name ORDER BY c.id")
     List<CategoryStats> getArticleStats(Integer userId);
 
-    @Select("select * from article where create_user = #{id} and content like concat('%', #{data}, '%')")
+    @Select("select * from article where create_user = #{id} and (content like concat('%', #{data}, '%') or title like concat('%',#{data},'%'))")
     List<Article> listArticle(String data, Integer id);
+    @Select("select * from article where create_user = #{userId} and category_id = #{categoryId};")
+    List<Article> listArticleByCategoryId(Integer categoryId,Integer userId);
 }

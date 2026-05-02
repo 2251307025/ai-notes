@@ -2,6 +2,7 @@ package com.chj.tool;
 
 import com.chj.pojo.Article;
 import com.chj.pojo.CategoryStats;
+import com.chj.pojo.PageBean;
 import com.chj.service.ArticleService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class ArticleTool {
             "请你查询分类列表，把id替换成对应的名称")
     public List<Article> listArticle(List<String> data) {
         log.info("调用查询笔记列表tool");
+        log.info("data={}", data);
         List<Article> result = articleService.listArticle(data);
         return result;
     }
@@ -81,5 +83,10 @@ public class ArticleTool {
     public List<CategoryStats> getArticleStats() {
         log.info("调用获取笔记统计tool");
         return articleService.getArticleStats();
+    }
+    @Tool(description = "根据分类ID获取笔记列表")
+    public List<Article> listArticleByCategoryId(@ToolParam(description = "分类ID") Integer categoryId) {
+        log.info("调用根据分类ID获取笔记列表tool categoryId={}", categoryId);
+        return articleService.listArticleByCategoryId(categoryId);
     }
 }

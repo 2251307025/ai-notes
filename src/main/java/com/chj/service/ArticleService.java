@@ -27,4 +27,6 @@ public interface ArticleService {
     List<Article> listArticle(List<String> data);
 
     List<CategoryStats> getArticleStats();
+
+    List<Article> listArticleByCategoryId(Integer categoryId);
 }

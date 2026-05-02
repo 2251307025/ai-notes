@@ -88,6 +88,12 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public List<Article> listArticleByCategoryId(Integer categoryId) {
+        Map<String,Object> map = ThreadLocalUtil.get();
+        return articleMapper.listArticleByCategoryId(categoryId,(Integer)map.get("id"));
+    }
+
+    @Override
     public List<Article> listArticle(List<String> data) {
         Map<String,Object> map=ThreadLocalUtil.get();
         Set<Article> set=new HashSet<>();
