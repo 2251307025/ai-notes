@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BigEventApplication {
+public class AINotesApplication {
     public static void main(String[] args) {
-        SpringApplication.run(BigEventApplication.class,args);
+        SpringApplication.run(AINotesApplication.class,args);
     }
 }

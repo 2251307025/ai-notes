@@ -11,12 +11,12 @@ spring:
       api-key: sk-1bdffac9d42e49b3afff939aec6d1185
 #  datasource:
 #    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/big_event
+#    url: jdbc:mysql://localhost:3306/ai_notes
 #    username: root
 #    password: 1234
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/big_event
+    url: jdbc:postgresql://localhost:5432/ai_notes
     username: root
     password: 1234
   servlet:
@@ -36,7 +36,6 @@ mybatis:
 aliyun:
   oss:
     endpoint: https://oss-cn-hangzhou.aliyuncs.com
-
     bucketName: chjdbucket
 logging:
   level:

@@ -7,11 +7,11 @@
         <version>3.3.0</version>
     </parent>
     <groupId>com.chj</groupId>
-    <artifactId>big-event</artifactId>
+    <artifactId>ai-notes</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>big-event</name>
+    <name>ai-notes</name>
     <url>https://maven.apache.org</url>
 
     <properties>
