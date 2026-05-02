@@ -33,10 +33,11 @@ spring:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true #开启驼峰命名
-aliyun:
-  oss:
-    endpoint: https://oss-cn-hangzhou.aliyuncs.com
-    bucketName: chjdbucket
+minio:
+  endpoint: http://localhost:9000
+  bucketName: ai-notes
+  accessKey: minioadmin
+  secretKey: minioadmin
 logging:
   level:
     com.chj.mapper: debug

@@ -1,27 +1,31 @@
 package com.chj.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
 
 public class JwtUtil {
 
+    private static final SecretKey KEY = Keys.hmacShaKeyFor(
+            "chjchjchjchjchjchjchjchjchjchjchjchj".getBytes(StandardCharsets.UTF_8));
+
     public static String getJwt(Map<String,Object> cl){
-        String c = Jwts.builder()
-                .addClaims(cl)
-                .signWith(SignatureAlgorithm.HS256, "chjchjchj")
-                .setExpiration(new Date(System.currentTimeMillis() + 3600 * 1000))
+        return Jwts.builder()
+                .claims(cl)
+                .signWith(KEY)
+                .expiration(new Date(System.currentTimeMillis() + 3600 * 1000))
                 .compact();
-        return c;
     }
     public static Claims passJwt(String s){
-        Claims c = Jwts.parser()
-                .setSigningKey("chjchjchj")
-                .parseClaimsJws(s)
-                .getBody();
-        return c;
+        return Jwts.parser()
+                .verifyWith(KEY)
+                .build()
+                .parseSignedClaims(s)
+                .getPayload();
     }
 
 }
