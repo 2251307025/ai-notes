@@ -1,6 +1,9 @@
+version: "3.8"
+
 services:
+  # PostgreSQL + PGroonga 全文搜索
   postgres:
-    image: docker.m.daocloud.io/library/postgres:16  # 或改为 postgres:16
+    image: groonga/pgroonga:latest                  # 官方集成 PGroonga 的 PostgreSQL 16 镜像
     container_name: postgres-root
     ports:
       - "5432:5432"
@@ -11,8 +14,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  # Redis 缓存
   redis:
-    image: docker.m.daocloud.io/library/redis:6.2  # 或改为 redis:6.2
+    image: docker.m.daocloud.io/library/redis:6.2
     container_name: redis-server
     ports:
       - "6379:6379"
@@ -21,12 +25,13 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
+  # MinIO 对象存储
   minio:
     image: docker.m.daocloud.io/minio/minio:latest
     container_name: minio-server
     ports:
-      - "9000:9000"   # API 端口
-      - "9001:9001"   # 控制台端口
+      - "9000:9000"   # API
+      - "9001:9001"   # 控制台
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -35,9 +40,8 @@ services:
       - minio_data:/data
     restart: unless-stopped
 
+# 持久化存储卷（只保留实际使用的卷）
 volumes:
-  zookeeper_data:
-  zookeeper_datalog:
   postgres_data:
   redis_data:
   minio_data:
