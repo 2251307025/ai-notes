@@ -1,9 +1,9 @@
 version: "3.8"
 
 services:
-  # PostgreSQL + PGroonga 全文搜索
+  # PostgreSQL + ParadeDB (pgvector + pg_search 全文搜索)
   postgres:
-    image: groonga/pgroonga:latest                  # 官方集成 PGroonga 的 PostgreSQL 16 镜像
+    image: paradedb/paradedb:latest                # ParadeDB 官方镜像，已集成向量检索和全文搜索
     container_name: postgres-root
     ports:
       - "5432:5432"
