@@ -33,6 +33,7 @@ public class ArticleTool {
         log.info("调用查询笔记列表tool");
         log.info("data={}", data);
         List<Article> result = articleService.listArticle(data);
+        log.info("result={}", result);
         return result;
     }
 

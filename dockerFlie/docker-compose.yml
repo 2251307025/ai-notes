@@ -3,7 +3,7 @@ version: "3.8"
 services:
   # PostgreSQL + ParadeDB (pgvector + pg_search 全文搜索)
   postgres:
-    image: paradedb/paradedb:latest                # ParadeDB 官方镜像，已集成向量检索和全文搜索
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/paradedb/paradedb:latest-pg17          # ParadeDB 官方镜像，已集成向量检索和全文搜索
     container_name: postgres-root
     ports:
       - "5432:5432"

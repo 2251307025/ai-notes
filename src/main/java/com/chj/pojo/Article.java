@@ -27,6 +27,7 @@ public class Article {
     private String state;//发布状态 已发布|草稿
     @NotNull
     private Integer categoryId;//文章分类id
+    private float[] embedding;// 向量字段
     private Integer createUser;//创建人ID
     private LocalDateTime createTime;//创建时间
     private LocalDateTime updateTime;//更新时间

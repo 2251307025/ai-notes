@@ -8,8 +8,8 @@ import java.util.List;
 
 @Mapper
 public interface ArticleMapper {
-    @Insert("insert into article(title, content, cover_img, category_id, create_user, create_time, update_time,state) " +
-            "values(#{title},#{content},#{coverImg},#{categoryId},#{createUser},#{createTime},#{updateTime},#{state})")
+    @Insert("insert into article(title, content, cover_img, category_id, create_user, create_time, update_time, state, embedding) " +
+            "values(#{title},#{content},#{coverImg},#{categoryId},#{createUser},#{createTime},#{updateTime},#{state},#{embedding}::vector)")
     void add(Article article);
 
     List<Article> list(Integer userId, Integer categoryId, String state);
@@ -20,7 +20,7 @@ public interface ArticleMapper {
                                  @Param("categoryId") Integer categoryId,
                                  @Param("state") String state);
 
-    @Update("update article set title=#{title},content=#{content},cover_img=#{coverImg},state=#{state},category_id=#{categoryId},update_time=#{updateTime} where id=#{id}")
+    @Update("update article set title=#{title},content=#{content},cover_img=#{coverImg},state=#{state},category_id=#{categoryId},update_time=#{updateTime},embedding=#{embedding}::vector where id=#{id}")
     void update(Article article);
 
     @Select("select * from article where id=#{id}")
@@ -37,8 +37,12 @@ public interface ArticleMapper {
             "WHERE c.create_user = #{userId} GROUP BY c.id, c.category_name ORDER BY c.id")
     List<CategoryStats> getArticleStats(Integer userId);
 
-    @Select("select * from article where create_user = #{id} and (content like concat('%', #{data}, '%') or title like concat('%',#{data},'%'))")
-    List<Article> listArticle(String data, Integer id);
+    List<Article> listArticle(@Param("data") List<String> data, @Param("userId") Integer userId);
+
+    List<Article> listArticleByVector(@Param("embedding") String embedding,
+                                      @Param("userId") Integer userId,
+                                      @Param("limit") Integer limit);
+
     @Select("select * from article where create_user = #{userId} and category_id = #{categoryId};")
     List<Article> listArticleByCategoryId(Integer categoryId,Integer userId);
 }

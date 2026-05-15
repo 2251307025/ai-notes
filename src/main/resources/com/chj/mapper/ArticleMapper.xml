@@ -32,5 +32,25 @@
         order by id asc
         limit #{limit}
     </select>
+    <select id="listArticle" resultType="com.chj.pojo.Article">
+        SELECT * FROM article
+        WHERE create_user = #{userId}
+        <if test="data != null and data.size() > 0">
+            AND (
+            <foreach collection="data" item="kw" separator=" OR ">
+                content @@ #{kw}
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <select id="listArticleByVector" resultType="com.chj.pojo.Article">
+        SELECT *
+        FROM article
+        WHERE create_user = #{userId}
+          AND embedding IS NOT NULL
+        ORDER BY embedding &lt;=&gt; #{embedding}::vector ASC
+        LIMIT #{limit}
+    </select>
 
 </mapper>

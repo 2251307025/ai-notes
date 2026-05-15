@@ -8,6 +8,10 @@ import com.chj.service.ArticleService;
 import com.chj.utils.ThreadLocalUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.ai.embedding.EmbeddingRequest;
+import org.springframework.ai.openai.OpenAiEmbeddingOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,17 +19,23 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ArticleServiceImpl implements ArticleService {
     @Autowired
-    ArticleMapper articleMapper;
+    private ArticleMapper articleMapper;
+    @Autowired
+    private EmbeddingModel embeddingModel;
     @Override
     public void add(Article article) {
         article.setCreateTime(LocalDateTime.now());
         article.setUpdateTime(LocalDateTime.now());
         Map<String,Object> map = ThreadLocalUtil.get();
         article.setCreateUser((Integer) map.get("id"));
+        // 生成并设置 embedding
+        article.setEmbedding(generateEmbedding(article.getTitle(), article.getContent()));
         articleMapper.add(article);
     }
 
@@ -58,6 +68,8 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public void update(Article article) {
         article.setUpdateTime(LocalDateTime.now());
+        // 更新时重新生成 embedding
+        article.setEmbedding(generateEmbedding(article.getTitle(), article.getContent()));
         Map<String,Object> map = ThreadLocalUtil.get();
         Integer userId= (Integer) map.get("id");
         article.setCreateUser(userId);
@@ -94,13 +106,56 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<Article> listArticle(List<String> data) {
-        Map<String,Object> map=ThreadLocalUtil.get();
-        Set<Article> set=new HashSet<>();
-        Integer userId= (Integer) map.get("id");
-        for (String item : data) {
-            List<Article> articles = articleMapper.listArticle(item, userId);
-            set.addAll(articles);
+        Map<String,Object> map = ThreadLocalUtil.get();
+        Integer userId = (Integer) map.get("id");
+
+        // 1. BM25 全文搜索（原有逻辑）
+        List<Article> bm25Results = articleMapper.listArticle(data, userId);
+
+        // 2. 向量搜索（补充 BM25 查不到的语义匹配结果，出错则降级为 BM25 结果）
+        try {
+            Set<Integer> bm25Ids = bm25Results.stream().map(Article::getId).collect(Collectors.toSet());
+            String combinedQuery = String.join(" ", data);
+            float[] queryVector = generateEmbedding(combinedQuery, "");
+            String vectorLiteral = floatArrayToVectorLiteral(queryVector);
+            List<Article> vectorResults = articleMapper.listArticleByVector(vectorLiteral, userId, 20);
+
+            // 3. 合并结果：先 BM25 结果，再去重补充向量搜索的额外结果
+            List<Article> merged = new ArrayList<>(bm25Results);
+            for (Article a : vectorResults) {
+                if (!bm25Ids.contains(a.getId())) {
+                    merged.add(a);
+                }
+            }
+            return merged;
+        } catch (Exception e) {
+            log.warn("向量搜索失败，降级为 BM25 全文搜索: {}", e.getMessage());
+            return bm25Results;
         }
-        return new ArrayList<>(set);
+    }
+    /**
+     * 生成文本的 embedding 向量
+     * @param title 文章标题
+     * @param content 文章内容
+     * @return float[] 向量数组
+     */
+    private float[] generateEmbedding(String title, String content) {
+        String text = (title != null ? title : "") + " " + (content != null ? content : "");
+        EmbeddingRequest request = new EmbeddingRequest(List.of(text.trim()),
+                OpenAiEmbeddingOptions.builder()
+                        .model("BAAI/bge-m3")
+                        .build());
+        return embeddingModel.call(request)
+                .getResult().getOutput();
+    }
+
+    private String floatArrayToVectorLiteral(float[] array) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < array.length; i++) {
+            if (i > 0) sb.append(",");
+            sb.append(array[i]);
+        }
+        sb.append("]");
+        return sb.toString();
     }
 }
