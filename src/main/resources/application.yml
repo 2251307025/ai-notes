@@ -1,11 +1,13 @@
 server:
   port: 8080
 spring:
+  profiles:
+    active: local
   ai:
     deepseek:
-      api-key: sk-1bdffac9d42e49b3afff939aec6d1185
+      api-key: ${apikey.deepseek}
     openai:
-      api-key: sk-jnxvzklfupriqslmgesqhflotvhmsxwbscyskwbmiqtjogfq
+      api-key: ${apikey.SiliconFlow}
       base-url: https://api.siliconflow.cn
       embedding:
         options:

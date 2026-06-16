@@ -13,3 +13,6 @@ out/
 # 日志、缓存、系统文件
 *.log
 .DS_Store
+
+# api配置信息
+src/main/resources/application-local.yml
