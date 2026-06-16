@@ -1,5 +1,6 @@
 package com.chj.service.impl;
 
+import com.chj.anno.AutoFill;
 import com.chj.mapper.ArticleMapper;
 import com.chj.pojo.Article;
 import com.chj.pojo.CategoryStats;
@@ -29,11 +30,8 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private EmbeddingModel embeddingModel;
     @Override
+    @AutoFill(AutoFill.OperationType.INSERT)
     public void add(Article article) {
-        article.setCreateTime(LocalDateTime.now());
-        article.setUpdateTime(LocalDateTime.now());
-        Map<String,Object> map = ThreadLocalUtil.get();
-        article.setCreateUser((Integer) map.get("id"));
         // 生成并设置 embedding
         article.setEmbedding(generateEmbedding(article.getTitle(), article.getContent()));
         articleMapper.add(article);
@@ -66,13 +64,10 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @AutoFill(AutoFill.OperationType.UPDATE)
     public void update(Article article) {
-        article.setUpdateTime(LocalDateTime.now());
         // 更新时重新生成 embedding
         article.setEmbedding(generateEmbedding(article.getTitle(), article.getContent()));
-        Map<String,Object> map = ThreadLocalUtil.get();
-        Integer userId= (Integer) map.get("id");
-        article.setCreateUser(userId);
         articleMapper.update(article);
     }
 
@@ -141,10 +136,7 @@ public class ArticleServiceImpl implements ArticleService {
      */
     private float[] generateEmbedding(String title, String content) {
         String text = (title != null ? title : "") + " " + (content != null ? content : "");
-        EmbeddingRequest request = new EmbeddingRequest(List.of(text.trim()),
-                OpenAiEmbeddingOptions.builder()
-                        .model("BAAI/bge-m3")
-                        .build());
+        EmbeddingRequest request = new EmbeddingRequest(List.of(text.trim()),null);
         return embeddingModel.call(request)
                 .getResult().getOutput();
     }

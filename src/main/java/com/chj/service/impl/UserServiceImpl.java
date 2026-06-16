@@ -1,6 +1,7 @@
 package com.chj.service.impl;
 
 
+import com.chj.anno.AutoFill;
 import com.chj.mapper.UserMapper;
 import com.chj.pojo.User;
 import com.chj.service.UserService;
@@ -30,8 +31,8 @@ public class UserServiceImpl  implements UserService {
     }
 
     @Override
+    @AutoFill(AutoFill.OperationType.UPDATE)
     public void update(User user) {
-        user.setUpdateTime(LocalDateTime.now());
         userMapper.update(user);
     }
 

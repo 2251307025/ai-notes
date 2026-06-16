@@ -1,5 +1,6 @@
 package com.chj.service.impl;
 
+import com.chj.anno.AutoFill;
 import com.chj.mapper.CategoryMapper;
 import com.chj.pojo.Category;
 import com.chj.service.CategoryService;
@@ -16,12 +17,8 @@ public class CategoryServiceImpl implements CategoryService {
 @Autowired
     private CategoryMapper categoryMapper;
     @Override
+    @AutoFill(AutoFill.OperationType.INSERT)
     public void add(Category category) {
-        category.setCreateTime(LocalDateTime.now());
-        category.setUpdateTime(LocalDateTime.now());
-        Map<String,Object> map = ThreadLocalUtil.get();
-        Integer userId = (Integer) map.get("id");
-        category.setCreateUser(userId);
         categoryMapper.add(category);
     }
 
@@ -48,6 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @AutoFill(AutoFill.OperationType.UPDATE)
     public void update(Category category) {
         categoryMapper.update(category);
     }
