@@ -36,13 +36,6 @@ public class ArticleTool {
         log.info("result={}", result);
         return result;
     }
-
-    @Tool(description = "根据笔记{id}返回笔记的详情")
-    public Article getArticle(Integer id) {
-        log.info("调用根据id{}查看笔记详情tool", id);
-        return articleService.findById(id);
-    }
-
     @Tool(description = "根据笔记{id}删除笔记")
     public void deleteArticle(Integer id) {
         log.info("调用根据id{}删除笔记tool", id);
