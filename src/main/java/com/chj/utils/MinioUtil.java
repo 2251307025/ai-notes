@@ -67,4 +67,20 @@ public class MinioUtil {
                 : endpoint;
         return baseEndpoint + "/" + bucketName + "/" + objectName;
     }
+
+    public String upload(InputStream inputStream, String fileName) throws Exception {
+        String objectName="images/"+fileName;
+        getMinioClient().putObject(
+                PutObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(objectName)
+                        .stream(inputStream,-1,5*1024*1024)
+                        .contentType("image/png")
+                        .build()
+        );
+        String baseEndpoint = endpoint.endsWith("/")
+                ? endpoint.substring(0, endpoint.length() - 1)
+                : endpoint;
+        return baseEndpoint + "/" + bucketName + "/" + objectName;
+    }
 }

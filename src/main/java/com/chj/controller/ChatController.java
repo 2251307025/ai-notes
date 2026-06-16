@@ -1,6 +1,8 @@
 package com.chj.controller;
 
+import com.chj.pojo.ChatInput;
 import com.chj.pojo.Result;
+import com.chj.service.ChatService;
 import com.chj.tool.ArticleTool;
 import com.chj.tool.CategoryTool;
 import com.chj.tool.TtlToolCallbackWrapper;
@@ -29,64 +31,18 @@ import java.util.Map;
 @Slf4j
 public class ChatController {
     @Resource
-    private ChatClient deepSeekChatClient;
-    @Resource
-    private ChatMemory chatMemory;
-    @Resource
-    private ArticleTool articleTool;
-    @Resource
-    private CategoryTool categoryTool;
-    @Resource
-    private UserTool userTool;
-    record ChatInput(String userInput) {}
-
-
-
+    private ChatService chatService;
     @PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> chat(@RequestBody ChatInput chatInput) {
-        Map<String,Integer> map = ThreadLocalUtil.get();
-        String userId = String.valueOf(map.get("id"));
-        String userInput = chatInput.userInput;
-        if (userId == null || userInput == null) {
-            return Flux.just(ServerSentEvent.<String>builder()
-                    .data("{\"error\":\"用户输入信息不能为空\"}")
-                    .event("error")
-                    .build());
-        }
-        List<Message> messages = chatMemory.get(userId);
-        log.info("历史记录{}", messages);
-        log.info("用户{}询问{}", userId, userInput);
-        ToolCallback[] toolCallbacks = Arrays.stream(
-                        ToolCallbacks.from(articleTool, categoryTool, userTool))
-                .map(TtlToolCallbackWrapper::new)
-                .toArray(ToolCallback[]::new);
-        return deepSeekChatClient.prompt()
-                .advisors(MessageChatMemoryAdvisor.builder(chatMemory)
-                        .conversationId(userId).build())
-                .user(userInput)
-                .toolCallbacks(toolCallbacks)
-                .stream()
-                .content()
-                .map(content -> ServerSentEvent.<String>builder()
-                        .data(content)
-                        .event("message")
-                        .build())
-                .onErrorResume(e -> {
-                    log.error("聊天流异常: userId={}, error={}", userId, e.getMessage(), e);
-                    return Flux.just(ServerSentEvent.<String>builder()
-                            .data("{\"error\":\"" +
-                                    (StringUtils.hasText(e.getMessage()) ? e.getMessage() : "内部错误，请稍后重试") +
-                                    "\"}")
-                            .event("error")
-                            .build());
-                });
+        return chatService.chat(chatInput);
     }
     @DeleteMapping()
     public Result deleteMemory(){
-        Map<String,Integer> map = ThreadLocalUtil.get();
-        String userId=String.valueOf(map.get("id"));
-        chatMemory.clear(userId);
-        log.info("删除用户{}的聊天记录", userId);
-        return Result.success("记忆清楚成功");
+        return chatService.deleteMemory();
+    }
+    @PostMapping("/image")
+    public String generateImage(@RequestBody String prompt){
+        log.info("chat/image 生成图片提示词：{}",prompt);
+        return chatService.generateImage(prompt);
     }
 }

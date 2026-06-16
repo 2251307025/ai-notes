@@ -12,15 +12,14 @@ spring:
       embedding:
         options:
           model: BAAI/bge-m3
+      image:
+        options:
+          model: Tongyi-MAI/Z-Image-Turbo
+    chat:
       memory:
         repository:
           jdbc:
             initialize-schema: always
-#  datasource:
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/ai_notes
-#    username: root
-#    password: 1234
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/ai_notes
