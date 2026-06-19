@@ -9,6 +9,7 @@ import com.chj.utils.Md5Util;
 import com.chj.utils.ThreadLocalUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.constraints.Pattern;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Validated
 @RestController
 @RequestMapping("/user")
@@ -31,6 +33,7 @@ public class UserController {
     UserService userService;
     @PostMapping("/register")
     public Result register(@Pattern(regexp = "^\\S{5,16}$") String username, @Pattern(regexp = "^\\S{5,16}$")String password){
+            log.info("请求路径: /user/register, username={}", username);
             User u= userService.findByUserName(username);
             if (u==null){
                 userService.register(username,password);
@@ -41,6 +44,7 @@ public class UserController {
     }
     @PostMapping("/login")
     public Result<String> login(@Pattern(regexp = "^\\S{5,16}$")String username,@Pattern(regexp = "^\\S{5,16}$")String password){
+        log.info("请求路径: /user/login, username={}", username);
         User loginUser = userService.findByUserName(username);
         if (loginUser==null){
             return Result.error("用户名错误");
@@ -58,22 +62,26 @@ public class UserController {
     }
     @GetMapping("/userInfo")
     public Result<User> userInfo(){
+        log.info("请求路径: /user/userInfo");
         Map<String,Object> o = ThreadLocalUtil.get();
         User user = userService.findByUserName((String) o.get("username"));
         return Result.success(user);
     }
     @PutMapping("/update")
     public Result update(@RequestBody @Validated User user){
+        log.info("请求路径: /user/update, user={}", user);
         userService.update(user);
         return Result.success();
     }
     @PatchMapping("/updateAvatar")
     public Result updateAvatar(@RequestParam @URL String avatarUrl){
+        log.info("请求路径: /user/updateAvatar, avatarUrl={}", avatarUrl);
         userService.updateAvatar(avatarUrl);
         return Result.success();
     }
     @PatchMapping("/updatePwd")
     public Result updatePwd(@RequestBody Map<String,String> params,@RequestHeader("Authorization") String token){
+        log.info("请求路径: /user/updatePwd");
         String oldPwd = params.get("old_pwd");
         String newPwd = params.get("new_pwd");
         String rePwd = params.get("re_pwd");

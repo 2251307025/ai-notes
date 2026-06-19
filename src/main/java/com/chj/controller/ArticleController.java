@@ -9,9 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.File;
-
 @Component
 @RestController
 @Slf4j
@@ -22,7 +19,7 @@ public class ArticleController {
 
     @PostMapping
     public Result add(@RequestBody @Validated Article article) {
-        log.info("添加{}",article);
+        log.info("请求路径: /article, 添加文章, article={}", article);
         articleService.add(article);
         return Result.success();
     }
@@ -34,29 +31,30 @@ public class ArticleController {
                                           @RequestParam(required = false) Integer categoryId,
                                           @RequestParam(required = false) String state){
         if (lastId != null) {
-            log.info("游标分页查询, lastId={}", lastId);
+            log.info("请求路径: /article, 游标分页查询, lastId={}", lastId);
             PageBean<Article> pb = articleService.listByCursor(lastId, pageSize, categoryId, state);
             return Result.success(pb);
         }
-        log.info("偏移分页查询");
+        log.info("请求路径: /article, 偏移分页查询");
         int page = (pageNum != null) ? pageNum : 1;
         PageBean<Article> pb = articleService.list(page, pageSize, categoryId, state);
         return Result.success(pb);
     }
     @PutMapping
     public Result update(@RequestBody @Validated Article article){
-        log.info("更新{}",article);
+        log.info("请求路径: /article, 更新文章, article={}", article);
         articleService.update(article);
         return Result.success();
     }
     @GetMapping("/detail")
     public Result<Article> detail(Integer id){
-        log.info("根据id查询文章",id);
+        log.info("请求路径: /article/detail, id={}", id);
         Article article=articleService.findById(id);
         return Result.success(article);
     }
     @DeleteMapping
     public Result delete(Integer id){
+        log.info("请求路径: /article, id={}", id);
         articleService.deleteById(id);
         return Result.success();
     }
