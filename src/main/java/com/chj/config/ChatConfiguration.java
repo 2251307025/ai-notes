@@ -1,6 +1,11 @@
 package com.chj.config;
 
 
+import com.chj.tool.ArticleTool;
+import com.chj.tool.CategoryTool;
+import com.chj.tool.TtlToolCallbackWrapper;
+import com.chj.tool.UserTool;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -10,6 +15,8 @@ import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryReposito
 
 import org.springframework.ai.deepseek.DeepSeekChatModel;
 import org.springframework.ai.deepseek.DeepSeekChatOptions;
+import org.springframework.ai.support.ToolCallbacks;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -18,6 +25,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StreamUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 @Configuration
 @Slf4j
@@ -33,6 +41,13 @@ public class ChatConfiguration {
 //    public ChatMemoryRepository chatMemoryRepository(){
 //        return new InMemoryChatMemoryRepository();
 //    }
+
+    @Resource
+    private ArticleTool articleTool;
+    @Resource
+    private CategoryTool categoryTool;
+    @Resource
+    private UserTool userTool;
     @Bean
     @Primary
     public ChatMemoryRepository chatMemoryRepository(JdbcTemplate jdbcTemplate) {
@@ -62,8 +77,13 @@ public class ChatConfiguration {
 
     @Bean
     public ChatClient deepSeekChatClient(DeepSeekChatModel deepSeekChatModel) {
+        ToolCallback[] toolCallbacks = Arrays.stream(
+                        ToolCallbacks.from(articleTool, categoryTool, userTool))
+                .map(TtlToolCallbackWrapper::new)
+                .toArray(ToolCallback[]::new);
         return ChatClient.builder(deepSeekChatModel)
                 .defaultSystem(loadSystemPrompt())
+                .defaultToolCallbacks(toolCallbacks)
                 .defaultOptions(DeepSeekChatOptions.builder().build())
                 .build();
     }
