@@ -84,7 +84,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<ArticleVO> listArticleByCategoryId(Integer categoryId) {
         Map<String,Object> map = ThreadLocalUtil.get();
-        return BeanUtil.copyToList(articleMapper.listArticleByCategoryId(categoryId,(Integer)map.get("id")),ArticleVO.class);
+        return articleMapper.listArticleByCategoryId(categoryId,(Integer)map.get("id"));
     }
 
     @Override
@@ -111,32 +111,38 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public ArticleVO findByTitle(String title) {
+        Map<String,Object> map = ThreadLocalUtil.get();
+        return articleMapper.findByTitle(title,(Integer)map.get("id"));
+    }
+
+    @Override
     public List<ArticleVO> listArticle(List<String> data) {
         Map<String,Object> map = ThreadLocalUtil.get();
         Integer userId = (Integer) map.get("id");
 
         // 1. BM25 全文搜索（原有逻辑）
-        List<Article> bm25Results = articleMapper.listArticle(data, userId);
+        List<ArticleVO> bm25Results = articleMapper.listArticle(data, userId);
 
         // 2. 向量搜索（补充 BM25 查不到的语义匹配结果，出错则降级为 BM25 结果）
         try {
-            Set<Integer> bm25Ids = bm25Results.stream().map(Article::getId).collect(Collectors.toSet());
+            Set<Integer> bm25Ids = bm25Results.stream().map(ArticleVO::getId).collect(Collectors.toSet());
             String combinedQuery = String.join(" ", data);
             float[] queryVector = generateEmbedding(combinedQuery, "");
             String vectorLiteral = floatArrayToVectorLiteral(queryVector);
-            List<Article> vectorResults = articleMapper.listArticleByVector(vectorLiteral, userId, 20);
+            List<ArticleVO> vectorResults = articleMapper.listArticleByVector(vectorLiteral, userId, 20);
 
             // 3. 合并结果：先 BM25 结果，再去重补充向量搜索的额外结果
-            List<Article> merged = new ArrayList<>(bm25Results);
-            for (Article a : vectorResults) {
+            List<ArticleVO> merged = new ArrayList<>(bm25Results);
+            for (ArticleVO a : vectorResults) {
                 if (!bm25Ids.contains(a.getId())) {
                     merged.add(a);
                 }
             }
-            return BeanUtil.copyToList(merged, ArticleVO.class);
+            return merged;
         } catch (Exception e) {
             log.warn("向量搜索失败，降级为 BM25 全文搜索: {}", e.getMessage());
-            return BeanUtil.copyToList(bm25Results, ArticleVO.class);
+            return bm25Results;
         }
     }
     /**

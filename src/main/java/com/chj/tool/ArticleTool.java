@@ -36,6 +36,11 @@ public class ArticleTool {
         log.info("result={}", result);
         return result;
     }
+    public ArticleVO getArticleByTitle(@ToolParam(description = "根据笔记标题获取笔记信息") String title){
+        log.info("调用根据笔记标题获取笔记信息tool，{}",title);
+        return articleService.findByTitle(title);
+    }
+
     @Tool(description = "根据笔记{id}删除笔记")
     public void deleteArticle(Integer id) {
         log.info("调用根据id{}删除笔记tool", id);

@@ -34,4 +34,6 @@ public interface ArticleService {
     PageBean<Article> list(Integer pageSize, Integer pageNum, Integer categoryId, String status, String data, Integer userId);
 
     PageBean<Article> listByPrivate(Integer pageSize, Integer pageNum, Integer categoryId, String state, String data);
+
+    ArticleVO findByTitle(String title);
 }

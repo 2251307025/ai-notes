@@ -2,6 +2,7 @@ package com.chj.mapper;
 
 import com.chj.pojo.Article;
 import com.chj.pojo.CategoryStats;
+import com.chj.vo.ArticleVO;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -37,12 +38,13 @@ public interface ArticleMapper {
             "WHERE c.create_user = #{userId} GROUP BY c.id, c.category_name ORDER BY c.id")
     List<CategoryStats> getArticleStats(Integer userId);
 
-    List<Article> listArticle(@Param("data") List<String> data, @Param("userId") Integer userId);
+    List<ArticleVO> listArticle(@Param("data") List<String> data, @Param("userId") Integer userId);
 
-    List<Article> listArticleByVector(@Param("embedding") String embedding,
+    List<ArticleVO> listArticleByVector(@Param("embedding") String embedding,
                                       @Param("userId") Integer userId,
                                       @Param("limit") Integer limit);
 
-    @Select("select * from article where create_user = #{userId} and category_id = #{categoryId};")
-    List<Article> listArticleByCategoryId(Integer categoryId,Integer userId);
+    List<ArticleVO> listArticleByCategoryId(@Param("categoryId") Integer categoryId,@Param("userId") Integer userId);
+
+    ArticleVO findByTitle(String title, Integer id);
 }
