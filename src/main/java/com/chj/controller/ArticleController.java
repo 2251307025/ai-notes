@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/article")
 public class ArticleController {
     @Autowired
-    ArticleService articleService;
+    private ArticleService articleService;
 
     @PostMapping
     public Result add(@RequestBody @Validated Article article) {
@@ -23,22 +23,32 @@ public class ArticleController {
         articleService.add(article);
         return Result.success();
     }
-    //带有分页的查询（支持偏移分页和游标分页/无限滚动）
+    //游标分页/无限滚动 || 分页查询
+    @GetMapping("/public")
+    public Result<PageBean<Article>> listPublic(@RequestParam(required = false) Integer pageNum,
+                                                @RequestParam(defaultValue = "5") Integer pageSize,
+                                                @RequestParam(required = false) Integer lastId,
+                                                @RequestParam(required = false) Integer categoryId,
+                                                @RequestParam(required = false) String data){
+        log.info("请求路径: /article/public, 查询公共笔记列表");
+        if (lastId!=null){
+            return Result.success(articleService.listByCursor(lastId, pageSize, categoryId,"已发布",null));
+        }
+        return Result.success(articleService.list(pageSize,pageNum,categoryId,"已发布",data,null));
+    }
     @GetMapping
     public Result<PageBean<Article>> list(@RequestParam(required = false) Integer pageNum,
                                           @RequestParam(defaultValue = "5") Integer pageSize,
                                           @RequestParam(required = false) Integer lastId,
                                           @RequestParam(required = false) Integer categoryId,
-                                          @RequestParam(required = false) String state){
-        if (lastId != null) {
-            log.info("请求路径: /article, 游标分页查询, lastId={}", lastId);
-            PageBean<Article> pb = articleService.listByCursor(lastId, pageSize, categoryId, state);
+                                          @RequestParam(required = false) String state,
+                                          @RequestParam(required = false) String data){
+        log.info("请求路径: /article, 游标分页查询, lastId={}", lastId);
+        if (lastId!=null){
+            PageBean<Article> pb = articleService.listByCursorByPrivate(lastId, pageSize, categoryId, state);
             return Result.success(pb);
         }
-        log.info("请求路径: /article, 偏移分页查询");
-        int page = (pageNum != null) ? pageNum : 1;
-        PageBean<Article> pb = articleService.list(page, pageSize, categoryId, state);
-        return Result.success(pb);
+        return Result.success(articleService.listByPrivate(pageSize,pageNum,categoryId,state,data));
     }
     @PutMapping
     public Result update(@RequestBody @Validated Article article){

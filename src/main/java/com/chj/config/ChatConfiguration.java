@@ -42,12 +42,6 @@ public class ChatConfiguration {
 //        return new InMemoryChatMemoryRepository();
 //    }
 
-    @Resource
-    private ArticleTool articleTool;
-    @Resource
-    private CategoryTool categoryTool;
-    @Resource
-    private UserTool userTool;
     @Bean
     @Primary
     public ChatMemoryRepository chatMemoryRepository(JdbcTemplate jdbcTemplate) {
@@ -77,13 +71,8 @@ public class ChatConfiguration {
 
     @Bean
     public ChatClient deepSeekChatClient(DeepSeekChatModel deepSeekChatModel) {
-        ToolCallback[] toolCallbacks = Arrays.stream(
-                        ToolCallbacks.from(articleTool, categoryTool, userTool))
-                .map(TtlToolCallbackWrapper::new)
-                .toArray(ToolCallback[]::new);
         return ChatClient.builder(deepSeekChatModel)
                 .defaultSystem(loadSystemPrompt())
-                .defaultToolCallbacks(toolCallbacks)
                 .defaultOptions(DeepSeekChatOptions.builder().build())
                 .build();
     }

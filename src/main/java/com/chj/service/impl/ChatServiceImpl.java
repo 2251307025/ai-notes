@@ -42,6 +42,12 @@ public class ChatServiceImpl implements ChatService {
     private MinioUtil minioUtil;
     @Resource
     private ImageModel imageModel;
+    @Resource
+    private ArticleTool articleTool;
+    @Resource
+    private CategoryTool categoryTool;
+    @Resource
+    private UserTool userTool;
     @Override
     public String generateImage(String prompt){
         if (prompt == null|| prompt.isEmpty()){
@@ -75,10 +81,15 @@ public class ChatServiceImpl implements ChatService {
                     .event("error")
                     .build());
         }
+        ToolCallback[] toolCallbacks = Arrays.stream(
+                        ToolCallbacks.from(articleTool, categoryTool, userTool))
+                .map(TtlToolCallbackWrapper::new)
+                .toArray(ToolCallback[]::new);
         return deepSeekChatClient.prompt()
                 .advisors(MessageChatMemoryAdvisor.builder(chatMemory)
                         .conversationId(userId).build())
                 .user(userInput)
+                .toolCallbacks(toolCallbacks)
                 .stream()
                 .content()
                 .map(content -> ServerSentEvent.<String>builder()
