@@ -12,7 +12,7 @@ public interface ArticleMapper {
             "values(#{title},#{content},#{coverImg},#{categoryId},#{createUser},#{createTime},#{updateTime},#{state},#{embedding}::vector)")
     void add(Article article);
 
-    List<Article> list(Integer userId, Integer categoryId, String state);
+    List<Article> list(Integer userId, Integer categoryId, String state,float[] embedding);
 
     List<Article> listByIdCursor(@Param("lastId") Integer lastId,
                                  @Param("limit") Integer limit,
@@ -20,7 +20,7 @@ public interface ArticleMapper {
                                  @Param("categoryId") Integer categoryId,
                                  @Param("state") String state);
 
-    @Update("update article set title=#{title},content=#{content},cover_img=#{coverImg},state=#{state},category_id=#{categoryId},update_time=#{updateTime},embedding=#{embedding}::vector where id=#{id}")
+    @Update("update article set title = #{title},content = #{content},cover_img = #{coverImg},state = #{state},category_id = #{categoryId},update_time = #{updateTime},embedding = #{embedding}::vector where id = #{id}")
     void update(Article article);
 
     @Select("select * from article where id=#{id}")

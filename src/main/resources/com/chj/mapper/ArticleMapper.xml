@@ -14,7 +14,9 @@
         </if>
         and create_user=#{userId}
         </where>
-        order by id asc
+        <if test="embedding!=null">
+            order by embedding &lt;=&gt; #{embedding}::vector ASC
+        </if>
     </select>
 
     <select id="listByIdCursor" resultType="com.chj.pojo.Article">
@@ -27,7 +29,9 @@
             <if test="state != null">
                 and state = #{state}
             </if>
-            and create_user = #{userId}
+            <if test="userId!=null">
+                and create_user = #{userId}
+            </if>
         </where>
         order by id asc
         limit #{limit}

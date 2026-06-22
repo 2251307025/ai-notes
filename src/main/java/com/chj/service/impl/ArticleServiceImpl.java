@@ -1,5 +1,6 @@
 package com.chj.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.chj.anno.AutoFill;
 import com.chj.mapper.ArticleMapper;
 import com.chj.pojo.Article;
@@ -7,8 +8,10 @@ import com.chj.pojo.CategoryStats;
 import com.chj.pojo.PageBean;
 import com.chj.service.ArticleService;
 import com.chj.utils.ThreadLocalUtil;
+import com.chj.vo.ArticleVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import jakarta.websocket.OnClose;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.EmbeddingRequest;
@@ -38,23 +41,8 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public PageBean<Article> list(Integer pageNum, Integer pageSize, Integer categoryId, String state) {
-        PageBean<Article> pb=new PageBean<>();
-        PageHelper.startPage(pageNum,pageSize);
-        Map<String,Object> map = ThreadLocalUtil.get();
-        Integer userId = (Integer) map.get("id");
-        List<Article>  as=articleMapper.list(userId,categoryId,state);
-        Page<Article> p= (Page<Article>) as;
-        pb.setTotal(p.getTotal());
-        pb.setItems(p.getResult());
-        return pb;
-    }
-
-    @Override
-    public PageBean<Article> listByCursor(Integer lastId, Integer pageSize, Integer categoryId, String state) {
-        Map<String,Object> map = ThreadLocalUtil.get();
-        Integer userId = (Integer) map.get("id");
-        List<Article> articles = articleMapper.listByIdCursor(lastId, pageSize + 1, userId, categoryId, state);
+    public PageBean<Article> listByCursor(Integer lastId, Integer pageSize, Integer categoryId, String state,Integer userId) {
+        List<Article> articles = articleMapper.listByIdCursor(lastId, pageSize + 1,userId, categoryId, state);
         boolean hasMore = articles.size() > pageSize;
         List<Article> items = hasMore ? articles.subList(0, pageSize) : articles;
         PageBean<Article> pb = new PageBean<>();
@@ -94,13 +82,36 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> listArticleByCategoryId(Integer categoryId) {
+    public List<ArticleVO> listArticleByCategoryId(Integer categoryId) {
         Map<String,Object> map = ThreadLocalUtil.get();
-        return articleMapper.listArticleByCategoryId(categoryId,(Integer)map.get("id"));
+        return BeanUtil.copyToList(articleMapper.listArticleByCategoryId(categoryId,(Integer)map.get("id")),ArticleVO.class);
     }
 
     @Override
-    public List<Article> listArticle(List<String> data) {
+    public PageBean<Article> listByCursorByPrivate(Integer lastId, Integer pageSize, Integer categoryId, String state) {
+        Map<String,Object> map = ThreadLocalUtil.get();
+        return listByCursor(lastId, pageSize, categoryId, state, (Integer) map.get("id"));
+    }
+
+    @Override
+    public PageBean<Article> list(Integer pageSize, Integer pageNum, Integer categoryId, String status, String data, Integer userId) {
+        PageHelper.startPage(pageNum, pageSize);
+        float[] embedding = generateEmbedding(data, "");
+        Page<Article> page=(Page<Article>) articleMapper.list(userId, categoryId, status,embedding);
+        PageBean<Article> pq=new PageBean<>();
+        pq.setTotal(page.getTotal());
+        pq.setItems(page.getResult());
+        return pq;
+    }
+
+    @Override
+    public PageBean<Article> listByPrivate(Integer pageSize, Integer pageNum, Integer categoryId, String state, String data) {
+        Map<String,Object> map = ThreadLocalUtil.get();
+        return list(pageSize, pageNum, categoryId, state, data, (Integer) map.get("id"));
+    }
+
+    @Override
+    public List<ArticleVO> listArticle(List<String> data) {
         Map<String,Object> map = ThreadLocalUtil.get();
         Integer userId = (Integer) map.get("id");
 
@@ -122,10 +133,10 @@ public class ArticleServiceImpl implements ArticleService {
                     merged.add(a);
                 }
             }
-            return merged;
+            return BeanUtil.copyToList(merged, ArticleVO.class);
         } catch (Exception e) {
             log.warn("向量搜索失败，降级为 BM25 全文搜索: {}", e.getMessage());
-            return bm25Results;
+            return BeanUtil.copyToList(bm25Results, ArticleVO.class);
         }
     }
     /**

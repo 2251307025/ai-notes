@@ -4,6 +4,7 @@ import com.chj.pojo.Article;
 import com.chj.pojo.CategoryStats;
 import com.chj.pojo.PageBean;
 import com.chj.service.ArticleService;
+import com.chj.vo.ArticleVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
@@ -27,12 +28,11 @@ public class ArticleTool {
 
     @Tool(description = "返回笔记内容中存在{data}的笔记列表" +
             ",data是一个集合，请你根据用户的输入（用户可能会拼写错误，请你校验用户的拼写），使用一些相似的词进行搜索" +
-            ",这个方法返回的实体类中有分类的id，但是不要直接返回id给用户，" +
-            "请你查询分类列表，把id替换成对应的名称")
-    public List<Article> listArticle(List<String> data) {
+            "你需要拆解用户输入获取data集合")
+    public List<ArticleVO> listArticle(List<String> data) {
         log.info("调用查询笔记列表tool");
         log.info("data={}", data);
-        List<Article> result = articleService.listArticle(data);
+        List<ArticleVO> result = articleService.listArticle(data);
         log.info("result={}", result);
         return result;
     }
@@ -79,7 +79,7 @@ public class ArticleTool {
         return articleService.getArticleStats();
     }
     @Tool(description = "根据分类ID获取笔记列表")
-    public List<Article> listArticleByCategoryId(@ToolParam(description = "分类ID") Integer categoryId) {
+    public List<ArticleVO> listArticleByCategoryId(@ToolParam(description = "分类ID") Integer categoryId) {
         log.info("调用根据分类ID获取笔记列表tool categoryId={}", categoryId);
         return articleService.listArticleByCategoryId(categoryId);
     }
