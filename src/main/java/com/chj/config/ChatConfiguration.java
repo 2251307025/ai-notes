@@ -5,6 +5,7 @@ import com.chj.tool.ArticleTool;
 import com.chj.tool.CategoryTool;
 import com.chj.tool.TtlToolCallbackWrapper;
 import com.chj.tool.UserTool;
+import com.chj.utils.PromptUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -58,21 +59,12 @@ public class ChatConfiguration {
                 .build();
     }
 
-    private String loadSystemPrompt(){
-        try {
-            ClassPathResource resource = new ClassPathResource("prompt/system-prompt.txt");
-            String systemPrompt =StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
-            log.info("加载系统提示词成功：{}",systemPrompt);
-            return systemPrompt;
-        }catch (Exception e){
-            throw new RuntimeException("无法加载系统提示词文件：prompt/system-prompt.txt",e);
-        }
-    }
+
 
     @Bean
     public ChatClient deepSeekChatClient(DeepSeekChatModel deepSeekChatModel) {
         return ChatClient.builder(deepSeekChatModel)
-                .defaultSystem(loadSystemPrompt())
+                .defaultSystem(PromptUtil.systemPrompt)
                 .defaultOptions(DeepSeekChatOptions.builder().build())
                 .build();
     }

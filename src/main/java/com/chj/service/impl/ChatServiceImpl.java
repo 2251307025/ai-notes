@@ -9,6 +9,7 @@ import com.chj.tool.CategoryTool;
 import com.chj.tool.TtlToolCallbackWrapper;
 import com.chj.tool.UserTool;
 import com.chj.utils.MinioUtil;
+import com.chj.utils.PromptUtil;
 import com.chj.utils.ThreadLocalUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -19,13 +20,16 @@ import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.image.*;
 import org.springframework.ai.support.ToolCallbacks;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +57,7 @@ public class ChatServiceImpl implements ChatService {
         if (prompt == null|| prompt.isEmpty()){
             throw new RuntimeException("图片生成提示词不能为空");
         }
+        prompt= PromptUtil.imagePrompt +prompt;
         try {
             ImageOptions options = ImageOptionsBuilder.builder()
                     .height(512)
@@ -64,6 +69,7 @@ public class ChatServiceImpl implements ChatService {
             InputStream inputStream = new URL(tempUrl).openStream();
             String fileName="ai-generated-"+ UUID.randomUUID()+".png";
             String url = minioUtil.upload(inputStream, fileName);
+            log.info("图片访问url：{}",url);
             return url;
         }catch (Exception e){
             log.error("图片生成异常: {}",e.getMessage(), e);

@@ -41,8 +41,8 @@ public class ChatController {
         return chatService.deleteMemory();
     }
     @PostMapping("/image")
-    public String generateImage(@RequestBody String prompt){
-        log.info("chat/image 生成图片提示词：{}",prompt);
-        return chatService.generateImage(prompt);
+    public Result<String> generateImage(@RequestBody ChatInput chatInput){
+        log.info("chat/image 生成图片提示词：{}",chatInput);
+        return Result.success(chatService.generateImage(chatInput.getUserInput()));
     }
 }
