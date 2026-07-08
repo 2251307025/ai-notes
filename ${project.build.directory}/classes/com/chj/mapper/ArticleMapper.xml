@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chj.mapper.ArticleMapper">
+    <select id="list" resultType="com.chj.pojo.Article">
+        select * from article
+        <where>
+            <if test="categoryId!=null">
+                category_id=#{categoryId}
+            </if>
+        <if test="state!=null">
+            and state = #{state}
+        </if>
+        and create_user=#{userId}
+        </where>
+        <if test="embedding!=null">
+            order by embedding &lt;=&gt; #{embedding}::vector ASC
+        </if>
+    </select>
+
+    <select id="listByIdCursor" resultType="com.chj.pojo.Article">
+        select * from article
+        <where>
+            id > #{lastId}
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+            <if test="state != null">
+                and state = #{state}
+            </if>
+            <if test="userId!=null">
+                and create_user = #{userId}
+            </if>
+        </where>
+        order by id asc
+        limit #{limit}
+    </select>
+    <select id="listArticle" resultType="com.chj.vo.ArticleVO">
+        SELECT a.id, a.title, a.content, a.cover_img, a.state, c.category_name AS category, u.nickname AS create_user, a.create_time
+        FROM article a
+        LEFT JOIN category c ON a.category_id = c.id
+        LEFT JOIN "user" u ON a.create_user = u.id
+        WHERE a.create_user = #{userId}
+        <if test="data != null and data.size() > 0">
+            AND (
+            <foreach collection="data" item="kw" separator=" OR ">
+                a.content @@ #{kw}
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <select id="listArticleByVector" resultType="com.chj.vo.ArticleVO">
+        SELECT a.id, a.title, a.content, a.cover_img, a.state, c.category_name AS category, u.nickname AS create_user, a.create_time
+        FROM article a
+                 LEFT JOIN category c ON a.category_id = c.id
+                 LEFT JOIN "user" u ON a.create_user = u.id
+        WHERE a.create_user = #{userId}
+          AND a.embedding IS NOT NULL
+        ORDER BY a.embedding &lt;=&gt; #{embedding}::vector ASC
+        LIMIT #{limit}
+    </select>
+    <select id="listArticleByCategoryId" resultType="com.chj.vo.ArticleVO">
+        SELECT a.id,
+               a.title,
+               a.content,
+               a.cover_img,
+               a.state,
+               c.category_name AS category,
+               u.username AS create_user,
+               a.create_time
+        FROM article a
+                 LEFT JOIN category c ON a.category_id = c.id
+                 LEFT JOIN "user" u ON a.create_user = u.id
+        WHERE a.category_id = #{categoryId}
+          AND a.create_user = #{userId}
+    </select>
+    <select id="findByTitle" resultType="com.chj.vo.ArticleVO">
+        SELECT a.id,
+               a.title,
+               a.content,
+               a.cover_img,
+               a.state,
+               c.category_name AS category,
+               u.username AS create_user,
+               a.create_time
+        FROM article a
+                 LEFT JOIN category c ON a.category_id = c.id
+                 LEFT JOIN "user" u ON a.create_user = u.id
+        WHERE a.title LIKE CONCAT('%', #{title}, '%')
+    </select>
+
+</mapper>
