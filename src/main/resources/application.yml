@@ -60,3 +60,9 @@ siliconflow:
       modelName: DeepSeek V3
     - modelId: THUDM/GLM-4-9B-Chat-1M
       modelName: GLM-4 9B
+
+# Token 生命周期配置
+auth:
+  token:
+    idle-timeout-minutes: 60      # Redis TTL：空闲多久后过期（滑动窗口）
+    absolute-expiry-hours: 8      # JWT exp：会话绝对最大存活时间（安全上限）

@@ -1,6 +1,7 @@
 package com.chj.controller;
 
 
+import com.chj.config.TokenProperties;
 import com.chj.pojo.Result;
 import com.chj.pojo.User;
 import com.chj.service.UserService;
@@ -31,6 +32,9 @@ public class UserController {
     private StringRedisTemplate srt;
     @Autowired
     UserService userService;
+    @Autowired
+    private TokenProperties tokenProperties;
+
     @PostMapping("/register")
     public Result register(@Pattern(regexp = "^\\S{5,16}$") String username, @Pattern(regexp = "^\\S{5,16}$")String password){
             log.info("请求路径: /user/register, username={}", username);
@@ -55,7 +59,7 @@ public class UserController {
             map.put("username", loginUser.getUsername());
             String jwt = JwtUtil.getJwt(map);
             ValueOperations<String, String> sso = srt.opsForValue();
-            sso.set(jwt, jwt, 1, TimeUnit.HOURS);
+            sso.set(jwt, jwt, tokenProperties.getIdleTimeoutMinutes(), TimeUnit.MINUTES);
             return Result.success(jwt);
         }
         return Result.error("密码错误");
